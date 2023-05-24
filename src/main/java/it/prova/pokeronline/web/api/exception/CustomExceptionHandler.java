@@ -69,9 +69,79 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler{
 		Map<String, Object> body = new LinkedHashMap<>();
 		body.put("timestamp", LocalDateTime.now());
 		body.put("message", ex.getMessage());
+		body.put("status", HttpStatus.NOT_FOUND);
+
+		return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+	}
+	@ExceptionHandler(UtenteNonAutorizzatoException.class)
+	public ResponseEntity<Object> handleUtenteNonAutorizzatoException(UtenteNonAutorizzatoException ex,
+			WebRequest request) {
+
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("message", ex.getMessage());
+		body.put("status", HttpStatus.FORBIDDEN);
+
+		return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+	}
+	
+	@ExceptionHandler(RicaricaNonAndataABuonFineException.class)
+	public ResponseEntity<Object> handleRicaricaNonAndataABuonFineException(RicaricaNonAndataABuonFineException ex,
+			WebRequest request) {
+
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("message", ex.getMessage());
 		body.put("status", HttpStatus.UNPROCESSABLE_ENTITY);
 
 		return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
 	}
+	
+	@ExceptionHandler(UtenteGiocatoreGiaSedutoException.class)
+	public ResponseEntity<Object> handleUtenteGiocatoreGiaSedutoException(UtenteGiocatoreGiaSedutoException ex,
+			WebRequest request) {
 
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("message", ex.getMessage());
+		body.put("status", HttpStatus.UNPROCESSABLE_ENTITY);
+
+		return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+	
+	@ExceptionHandler(CreditoMinimoInsufficienteException.class)
+	public ResponseEntity<Object> handleCreditoMinimoInsufficienteException(CreditoMinimoInsufficienteException ex,
+			WebRequest request) {
+
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("message", ex.getMessage());
+		body.put("status", HttpStatus.UNPROCESSABLE_ENTITY);
+
+		return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+	
+	@ExceptionHandler(EsperienzaMinimaInsufficienteException.class)
+	public ResponseEntity<Object> handleEsperienzaMinimaInsufficienteException(EsperienzaMinimaInsufficienteException ex,
+			WebRequest request) {
+
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("message", ex.getMessage());
+		body.put("status", HttpStatus.UNPROCESSABLE_ENTITY);
+
+		return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+	
+	@ExceptionHandler(UtenteNonSedutoException.class)
+	public ResponseEntity<Object> handleUtenteNonSedutoException(UtenteNonSedutoException ex,
+			WebRequest request) {
+
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("timestamp", LocalDateTime.now());
+		body.put("message", ex.getMessage());
+		body.put("status", HttpStatus.UNPROCESSABLE_ENTITY);
+
+		return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
+	}
 }

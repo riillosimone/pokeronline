@@ -43,4 +43,5 @@ public class UtenteController {
 		return ResponseEntity.ok(new UtenteInfoJWTResponseDTO(utenteLoggato.getNome(), utenteLoggato.getCognome(),
 				utenteLoggato.getUsername(), utenteLoggato.getEmail(), ruoli));
 	}
+		
 }

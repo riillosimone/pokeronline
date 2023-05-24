@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -16,7 +20,7 @@ import it.prova.pokeronline.model.Tavolo;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TavoloShowDTO {
-	
+
 	@JsonIgnore(value = true)
 	private Long id;
 	@NotBlank(message = "{denominazione.notblank}")
@@ -26,10 +30,9 @@ public class TavoloShowDTO {
 	@Min(value = 0, message = "credito.message")
 	private Double creditoMin;
 	private LocalDate dataCreazione;
-	
-	@JsonIgnore(value = true)
-	private UtenteDTO utenteCreazione;
-	
+
+	private UtenteCreatoreDTO utenteCreazione;
+
 	private Set<GiocatoreDTO> giocatori = new HashSet<>();
 
 	public TavoloShowDTO() {
@@ -46,7 +49,6 @@ public class TavoloShowDTO {
 		this.creditoMin = creditoMin;
 	}
 
-	
 	public TavoloShowDTO(Long id, @NotBlank(message = "{denominazione.notblank}") String denominazione,
 			@Min(value = 0, message = "esperienza.message") Integer esperienzaMin,
 			@Min(value = 0, message = "credito.message") Double creditoMin, LocalDate dataCreazione) {
@@ -97,9 +99,16 @@ public class TavoloShowDTO {
 	public void setGiocatori(Set<GiocatoreDTO> giocatori) {
 		this.giocatori = giocatori;
 	}
+
 	
-	
-	
+	public UtenteCreatoreDTO getUtenteCreazione() {
+		return utenteCreazione;
+	}
+
+	public void setUtenteCreazione(UtenteCreatoreDTO utenteCreazione) {
+		this.utenteCreazione = utenteCreazione;
+	}
+
 	public LocalDate getDataCreazione() {
 		return dataCreazione;
 	}
@@ -108,29 +117,39 @@ public class TavoloShowDTO {
 		this.dataCreazione = dataCreazione;
 	}
 
-	public Tavolo buildTavoloModel() {
-		Tavolo result = new Tavolo(this.id, this.denominazione, this.esperienzaMin, this.creditoMin, this.dataCreazione);
-		if (this.utenteCreazione != null) {
+	public Tavolo buildTavoloModel(boolean includeUtenteCreatore) {
+		Tavolo result = new Tavolo(this.id, this.denominazione, this.esperienzaMin, this.creditoMin,
+				this.dataCreazione);
+		if (this.utenteCreazione != null && includeUtenteCreatore) {
 			result.setUtenteCreazione(this.utenteCreazione.buildUtenteModel(false));
 		}
 		return result;
 	}
-	
-	
+
 	public static TavoloShowDTO buildTavoloDTOFromModel(Tavolo tavoloModel, boolean includeGiocatori) {
 		TavoloShowDTO result = new TavoloShowDTO(tavoloModel.getId(), tavoloModel.getDenominazione(), tavoloModel.getEsperienzaMin(), tavoloModel.getCreditoMin(),tavoloModel.getDataCreazione());
+		result.setUtenteCreazione(UtenteCreatoreDTO.buildUtenteDTOFromModel(tavoloModel.getUtenteCreazione()));
 		if (includeGiocatori) {
 			result.setGiocatori(GiocatoreDTO.createGiocatoreDTOSetFromModelSet(tavoloModel.getGiocatori()));
 		}
 		return result;
 	}
-	
-	public static List<TavoloShowDTO> createTavoloShowDTOListFromModelList(List<Tavolo> modelListInput,boolean includeGiocatori) {
+
+	public static List<TavoloShowDTO> createTavoloShowDTOListFromModelList(List<Tavolo> modelListInput,
+			boolean includeGiocatori) {
 		return modelListInput.stream().map(tavoloEntity -> {
 			TavoloShowDTO result = TavoloShowDTO.buildTavoloDTOFromModel(tavoloEntity, includeGiocatori);
 			if (includeGiocatori)
 				result.setGiocatori(GiocatoreDTO.createGiocatoreDTOSetFromModelSet(tavoloEntity.getGiocatori()));
 			return result;
 		}).collect(Collectors.toList());
-		}
+	}
+
+	public static Page<TavoloShowDTO> fromModelPageToDTOPage(Page<Tavolo> input) {
+		return new PageImpl<>(createTavoloShowDTOListFromModelList(input.getContent(), true),
+				PageRequest.of(input.getPageable().getPageNumber(), input.getPageable().getPageSize(),
+						input.getPageable().getSort()),
+				input.getTotalElements());
+	}
+
 }

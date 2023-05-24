@@ -45,7 +45,7 @@ public class TavoloProtectedController {
 	@PutMapping("/{id}")
 	public TavoloDTOPerInsert update(@Valid @RequestBody TavoloDTOPerInsert tavoloInput,
 			@PathVariable(required = true) Long id) {
-		Tavolo tavolo = tavoloService.caricaSingoloElemento(id);
+		Tavolo tavolo = tavoloService.caricaSingoloElemento(id);	
 		if (tavolo == null) {
 			throw new TavoloNotFoundException("Tavolo not found con id: " + id);
 		}

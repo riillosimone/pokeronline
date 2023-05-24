@@ -45,10 +45,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				
 				.authorizeHttpRequests() 
 				.antMatchers("/api/auth/login","/h2-console/**").permitAll()
+				.antMatchers("/api/protected/**").hasAnyRole("ADMIN","SPECIAL_PLAYER")
 				.antMatchers("/api/tavolo/**").permitAll()
-				.antMatchers("/api/protected/tavolo/**").hasAnyRole("ADMIN","SPECIAL_PLAYER")
 				//tutti gli utenti autenticati possono richiedere le info
 				.antMatchers("/api/utente/userInfo").authenticated()
+				.antMatchers("/api/ricarica").authenticated()
 				.antMatchers("/api/utente/**").hasRole("ADMIN")
 				.antMatchers("/**").hasAnyRole("ADMIN", "CLASSIC_PLAYER","SPECIAL_PLAYER")
 				// .antMatchers("/anonymous*").anonymous()

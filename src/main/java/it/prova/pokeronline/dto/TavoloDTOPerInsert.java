@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import it.prova.pokeronline.model.Tavolo;
 import it.prova.pokeronline.model.Utente;
@@ -17,13 +20,19 @@ public class TavoloDTOPerInsert {
 	@NotBlank(message = "{denominazione.notblank}")
 	private String denominazione;
 
-	@Min(value = 0, message = "esperienza.message")
+	@NotNull(message = "{esperienza.notnull}")
+	@Min(value = 0, message = "{esperienza.message}")
 	private Integer esperienzaMin;
-	@Min(value = 0, message = "credito.message")
+	
+	@NotNull(message = "{credito.notnull}")
+	@Min(value = 0, message = "{credito.message}")
 	private Double creditoMin;
 
+	
 	private LocalDate dataCreazione;
-
+	
+	
+	@JsonIgnore(value = true)
 	private Long[] utentiIds;
 
 	
