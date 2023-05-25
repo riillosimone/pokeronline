@@ -112,7 +112,7 @@ public class UtenteController {
 		Utente utenteAggiornato = utenteService.aggiorna(utenteInput.buildUtenteModel(false));
 		return UtenteDTO.buildUtenteDTOFromModel(utenteAggiornato);
 	}
-	
+	 
 	@PostMapping("/searchWithPagination")
 	public ResponseEntity<Page<UtenteDTO>> searchPaginated(@RequestBody UtenteDTO example,
 			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "0") Integer pageSize,
