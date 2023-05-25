@@ -29,29 +29,32 @@ public class TavoloPublicController {
 	private TavoloService tavoloService;
 	@Autowired
 	private UtenteService utenteService;
-	
+
 	@GetMapping
 	public List<TavoloShowDTO> getAll() {
 		return TavoloShowDTO.createTavoloShowDTOListFromModelList(tavoloService.listAll(true), true);
 	}
-	
+
 	@GetMapping("/{id}")
 	public TavoloShowDTO findById(@PathVariable(value = "id", required = true) Long id) {
 		Tavolo tavolo = tavoloService.caricaSingoloElementoEager(id);
-		
+
 		if (tavolo == null) {
 			throw new TavoloNotFoundException("Tavolo not found con id: " + id);
 		}
 		return TavoloShowDTO.buildTavoloDTOFromModel(tavolo, true);
 	}
-	
+
 	@PostMapping("/search")
 	public List<TavoloShowDTO> search(@RequestBody TavoloShowDTO example) {
-		return TavoloShowDTO.createTavoloShowDTOListFromModelList(tavoloService.findByExample(example.buildTavoloModel(true)), false);
+		
+		
+		return TavoloShowDTO.createTavoloShowDTOListFromModelList(
+				tavoloService.findByExample(example.buildTavoloModel(true)), false);
 	}
-	
+
 	@PostMapping("/searchWithPagination")
-	public ResponseEntity<Page<TavoloShowDTO>> searchPaginated (@RequestBody TavoloShowDTO example,
+	public ResponseEntity<Page<TavoloShowDTO>> searchPaginated(@RequestBody TavoloShowDTO example,
 			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "0") Integer pageSize,
 			@RequestParam(defaultValue = "id") String sortBy) {
 		Page<Tavolo> entityPageResults = tavoloService.findByExampleWithPagination(example.buildTavoloModel(true),
@@ -60,20 +63,32 @@ public class TavoloPublicController {
 		return new ResponseEntity<Page<TavoloShowDTO>>(TavoloShowDTO.fromModelPageToDTOPage(entityPageResults),
 				HttpStatus.OK);
 	}
-	
+
+//	@PostMapping("/searchNativeWithPagination")
+//	public ResponseEntity<Page<TavoloShowDTO>> searchNativePaginated(@RequestBody TavoloShowDTO example,
+//			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "0") Integer pageSize,
+//			@RequestParam(defaultValue = "id") String sortBy) {
+//
+//		Page<Tavolo> entityPageResults = tavoloService.findByExampleNativeWithPagination(example.buildTavoloModel(true),
+//				pageNo, pageSize, sortBy);
+//
+//		return new ResponseEntity<Page<TavoloShowDTO>>(TavoloShowDTO.fromModelPageToDTOPage(entityPageResults),
+//				HttpStatus.OK);
+//	}
+
 	@GetMapping("/siediti/{id}")
 	public TavoloShowDTO siediti(@PathVariable(value = "id", required = true) Long id) {
 		return TavoloShowDTO.buildTavoloDTOFromModel(tavoloService.siediti(id), true);
 	}
-	
+
 	@GetMapping("/alzati/{id}")
 	public TavoloShowDTO alzati(@PathVariable(value = "id", required = true) Long id) {
 		return TavoloShowDTO.buildTavoloDTOFromModel(tavoloService.alzati(id), true);
 	}
-	
+
 	@GetMapping("/gioca/{id}")
-	public UtenteShowDTO gioca(@PathVariable(value = "id", required = true)Long id) {
+	public UtenteShowDTO gioca(@PathVariable(value = "id", required = true) Long id) {
 		return UtenteShowDTO.buildUtenteDTOFromModel(utenteService.gioca(id));
 	}
-	
+
 }

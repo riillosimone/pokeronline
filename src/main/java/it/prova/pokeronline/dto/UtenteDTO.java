@@ -2,14 +2,22 @@ package it.prova.pokeronline.dto;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import it.prova.pokeronline.model.Ruolo;
 import it.prova.pokeronline.model.StatoUtente;
+import it.prova.pokeronline.model.Tavolo;
 import it.prova.pokeronline.model.Utente;
 
 public class UtenteDTO {
@@ -20,10 +28,12 @@ public class UtenteDTO {
 	@Size(min = 3, max = 15, message = "Il valore inserito '${validatedValue}' deve essere lungo tra {min} e {max} caratteri")
 	private String username;
 
+	@JsonIgnore(value = true)
 	@NotBlank(message = "{password.notblank}")
 	@Size(min = 8, max = 15, message = "Il valore inserito deve essere lungo tra {min} e {max} caratteri")
 	private String password;
 
+	@JsonIgnore(value = true)
 	private String confermaPassword;
 
 	@NotBlank(message = "{nome.notblank}")
@@ -41,10 +51,10 @@ public class UtenteDTO {
 	private Integer esperienzaAccumulata;
 	@Min(value = 0, message = "credito.message")
 	private Double creditoAccumulato;
-	
 
 	private StatoUtente stato;
 
+	@JsonIgnore(value = true)
 	private Long[] ruoliIds;
 
 	public UtenteDTO() {
@@ -206,8 +216,6 @@ public class UtenteDTO {
 
 		return result;
 	}
-	
-	
 
 	// niente password...
 	public static UtenteDTO buildUtenteDTOFromModel(Utente utenteModel) {
@@ -220,5 +228,17 @@ public class UtenteDTO {
 					.toArray(new Long[] {});
 
 		return result;
+	}
+
+	public static List<UtenteDTO> createUtenteDTOListFromModelList(List<Utente> modelList) {
+		return modelList.stream().map(entity -> UtenteDTO.buildUtenteDTOFromModel(entity)).collect(Collectors.toList());
+	}
+	
+	
+	public static Page<UtenteDTO> fromModelPageToDTOPage(Page<Utente> input) {
+		return new PageImpl<>(createUtenteDTOListFromModelList(input.getContent()),
+				PageRequest.of(input.getPageable().getPageNumber(), input.getPageable().getPageSize(),
+						input.getPageable().getSort()),
+				input.getTotalElements());
 	}
 }

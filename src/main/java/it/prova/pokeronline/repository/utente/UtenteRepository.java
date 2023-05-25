@@ -3,13 +3,15 @@ package it.prova.pokeronline.repository.utente;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import it.prova.pokeronline.model.StatoUtente;
 import it.prova.pokeronline.model.Utente;
 
-public interface UtenteRepository  extends CrudRepository<Utente, Long>, CustomUtenteRepository{
+public interface UtenteRepository  extends PagingAndSortingRepository<Utente, Long>, CustomUtenteRepository,JpaSpecificationExecutor<Utente>{
 
 	@EntityGraph(attributePaths = { "ruoli" })
 	Optional<Utente> findByUsername(String username);

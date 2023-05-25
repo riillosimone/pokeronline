@@ -34,8 +34,7 @@ public class TavoloServiceImpl implements TavoloService {
 
 	@Autowired
 	private TavoloRepository repository;
-	
-	
+
 	@Autowired
 	private UtenteService utenteService;
 
@@ -158,6 +157,15 @@ public class TavoloServiceImpl implements TavoloService {
 		return repository.findAll(specificationCriteria, paging);
 	}
 
+//	@Override
+//	@Transactional(readOnly = true)
+//	public Page<Tavolo> findByExampleNativeWithPagination(Tavolo example, Integer pageNo, Integer pageSize,
+//			String sortBy) {
+//
+//		return repository.findByExampleNativeWithPagination(example.getDenominazione(), example.getEsperienzaMin(),
+//				example.getCreditoMin(), example.getDataCreazione(), example.getUtenteCreazione().getUsername(), PageRequest.of(pageNo, pageSize, Sort.by(sortBy)));
+//	}
+
 	@Override
 	@Transactional
 	public Tavolo siediti(Long idTavolo) {
@@ -170,36 +178,34 @@ public class TavoloServiceImpl implements TavoloService {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		// estraggo le info dal principal
 		Utente utenteLoggato = utenteService.findByUsername(username);
-		
+
 		if (utenteLoggato.getCreditoAccumulato() == null) {
-			utenteLoggato.setCreditoAccumulato(0d);			
+			utenteLoggato.setCreditoAccumulato(0d);
 		}
-		if (utenteLoggato.getCreditoAccumulato()< tavolo.getCreditoMin()) {
+		if (utenteLoggato.getCreditoAccumulato() < tavolo.getCreditoMin()) {
 			throw new CreditoMinimoInsufficienteException("Non hai credito sufficiente per sederti a questo tavolo");
 		}
 		if (utenteLoggato.getEsperienzaAccumulata() == null) {
-			utenteLoggato.setEsperienzaAccumulata(0);			
+			utenteLoggato.setEsperienzaAccumulata(0);
 		}
 		if (utenteLoggato.getEsperienzaAccumulata() < tavolo.getEsperienzaMin()) {
-			throw new EsperienzaMinimaInsufficienteException("Non hai abbastanza esperienza per sederti a questo tavolo");
+			throw new EsperienzaMinimaInsufficienteException(
+					"Non hai abbastanza esperienza per sederti a questo tavolo");
 		}
 		if (tavolo.getGiocatori().contains(utenteLoggato)) {
 			throw new UtenteGiocatoreGiaSedutoException("Attenzione! Sei già seduto a questo tavolo");
 		}
-		
+
 		List<Tavolo> listaTavoli = this.listAll(true);
 		for (Tavolo tavoloItem : listaTavoli) {
 			if (tavoloItem.getGiocatori().contains(utenteLoggato)) {
 				throw new UtenteGiocatoreGiaSedutoException("Attenzione! Sei già seduto ad un altro tavolo");
 			}
 		}
-		
-		
-		 
+
 		tavolo.getGiocatori().add(utenteLoggato);
 		return tavolo;
-		
-		
+
 	}
 
 	@Override
@@ -218,7 +224,5 @@ public class TavoloServiceImpl implements TavoloService {
 		tavolo.getGiocatori().remove(utenteLoggato);
 		return tavolo;
 	}
-	
-	
 
 }

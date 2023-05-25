@@ -3,16 +3,30 @@ package it.prova.pokeronline.web.api;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import it.prova.pokeronline.dto.UtenteDTO;
 import it.prova.pokeronline.model.Utente;
 import it.prova.pokeronline.security.dto.UtenteInfoJWTResponseDTO;
 import it.prova.pokeronline.service.UtenteService;
+import it.prova.pokeronline.web.api.exception.IdNotNullForInsertException;
+import it.prova.pokeronline.web.api.exception.UtenteNotFoundException;
 
 
 @RestController
@@ -42,6 +56,72 @@ public class UtenteController {
 
 		return ResponseEntity.ok(new UtenteInfoJWTResponseDTO(utenteLoggato.getNome(), utenteLoggato.getCognome(),
 				utenteLoggato.getUsername(), utenteLoggato.getEmail(), ruoli));
+	}
+	
+	@PostMapping("/inserisci")
+	@ResponseStatus(HttpStatus.CREATED)
+	public UtenteDTO insert(@Valid @RequestBody UtenteDTO utenteInput) {
+		if (utenteInput.getId()!=null) {
+			throw new IdNotNullForInsertException("Non è ammesso fornire un id per la creazione");
+		}
+		Utente utenteInserito = utenteService.inserisciNuovo(utenteInput.buildUtenteModel(true));
+		Utente utenteAbilitato = utenteService.changeUserAbilitation(utenteInserito.getId());
+		return UtenteDTO.buildUtenteDTOFromModel(utenteAbilitato);
+	}
+	
+//	@PostMapping("/abilita/{id}")
+//	public UtenteDTO abilita(@PathVariable(value = "id",required = true) Long id) {
+//		Utente utenteCaricato = utenteService.caricaSingoloUtente(id);
+//		if (utenteCaricato == null) {
+//			throw new UtenteNotFoundException("Utente not found con id: "+id);
+//		}
+//		
+//		return UtenteDTO.buildUtenteDTOFromModel(utenteAbilitato);
+//	}
+	
+	@GetMapping
+	public List<UtenteDTO> getAll() {
+		return UtenteDTO.createUtenteDTOListFromModelList(utenteService.listAllUtenti());
+	}
+	
+	@GetMapping("/{id}")
+	public UtenteDTO findUtente(@PathVariable(value = "id", required = true) Long id) {
+		Utente utenteCaricato = utenteService.caricaSingoloUtente(id);
+		if (utenteCaricato == null) {
+			throw new UtenteNotFoundException("Utente not found con id: "+id);
+		}
+		return UtenteDTO.buildUtenteDTOFromModel(utenteCaricato);
+	}
+	
+	@DeleteMapping("/delete/{id}")
+	public void elimina (@PathVariable(value = "id", required =  true) Long id) {
+		Utente utenteCaricato = utenteService.caricaSingoloUtente(id);
+		if (utenteCaricato == null) {
+			throw new UtenteNotFoundException("Utente not found con id: "+id);
+		}
+		utenteService.rimuovi(id);
+	}
+	
+	@PutMapping("/aggiorna/{id}")
+	public UtenteDTO update(@Valid @RequestBody UtenteDTO utenteInput, @PathVariable(value = "id",required = true) Long id) {
+		Utente utenteCaricato = utenteService.caricaSingoloUtente(id);
+		if (utenteCaricato == null) {
+			throw new UtenteNotFoundException("Utente not found con id: "+id);
+		}
+		utenteInput.setId(id);
+		Utente utenteAggiornato = utenteService.aggiorna(utenteInput.buildUtenteModel(false));
+		return UtenteDTO.buildUtenteDTOFromModel(utenteAggiornato);
+	}
+	
+	@PostMapping("/searchWithPagination")
+	public ResponseEntity<Page<UtenteDTO>> searchPaginated(@RequestBody UtenteDTO example,
+			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "0") Integer pageSize,
+			@RequestParam(defaultValue = "id") String sortBy) {
+		Page<Utente> entityPageResults = utenteService.findByExampleWithPagination(example.buildUtenteModel(true),
+				pageNo, pageSize, sortBy);
+
+		return new ResponseEntity<Page<UtenteDTO>>(UtenteDTO.fromModelPageToDTOPage(entityPageResults),
+				HttpStatus.OK);
 	}
 		
 }

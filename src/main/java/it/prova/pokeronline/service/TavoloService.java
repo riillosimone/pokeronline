@@ -24,6 +24,9 @@ public interface TavoloService {
 	
 	public List<Tavolo> findByExample(Tavolo example);
 	
+//	public Page<Tavolo> findByExampleNativeWithPagination(Tavolo example, Integer pageNo, Integer pageSize,
+//			String sortBy);
+	
 	public Page<Tavolo> findByExampleWithPagination(Tavolo example, Integer pageNo, Integer pageSize, String sortBy);
 	
 	public Tavolo siediti(Long idTavolo);

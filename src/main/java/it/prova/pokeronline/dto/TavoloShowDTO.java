@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import it.prova.pokeronline.model.Tavolo;
@@ -21,7 +20,7 @@ import it.prova.pokeronline.model.Tavolo;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TavoloShowDTO {
 
-	@JsonIgnore(value = true)
+	
 	private Long id;
 	@NotBlank(message = "{denominazione.notblank}")
 	private String denominazione;
