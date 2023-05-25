@@ -1,14 +1,10 @@
 package it.prova.pokeronline.repository.tavolo;
 
-import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
 
 import it.prova.pokeronline.model.Tavolo;
 
@@ -21,6 +17,7 @@ public interface TavoloRepository extends PagingAndSortingRepository<Tavolo, Lon
 	List<Tavolo> findAllEager();
 	
 	Tavolo findByDenominazione(String denominazione);
+	
 	
 //	@Query(value = "SELECT t.* " + "FROM tavolo t inner join t.utenteCreazione u "
 //			+ "WHERE ((:denominazione IS NULL OR LOWER(t.denominazione) LIKE %:denominazione%)  "

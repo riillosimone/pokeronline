@@ -90,5 +90,21 @@ public class TavoloPublicController {
 	public UtenteShowDTO gioca(@PathVariable(value = "id", required = true) Long id) {
 		return UtenteShowDTO.buildUtenteDTOFromModel(utenteService.gioca(id));
 	}
+	
+	@GetMapping("/lastGame")
+	public TavoloShowDTO lastGame() {
+		return TavoloShowDTO.buildTavoloDTOFromModel(tavoloService.lastGame(), false) ;
+	}
 
+	@PostMapping("/cercaTavoli")
+	public ResponseEntity<Page<TavoloShowDTO>> cercaTavoli(@RequestBody TavoloShowDTO example,
+			@RequestParam(defaultValue = "0") Integer pageNo, @RequestParam(defaultValue = "0") Integer pageSize,
+			@RequestParam(defaultValue = "id") String sortBy) {
+		Page<Tavolo> entityPageResults = tavoloService.cercaTavoliWithPagination(example.buildTavoloModel(true),
+				pageNo, pageSize, sortBy);
+
+		return new ResponseEntity<Page<TavoloShowDTO>>(TavoloShowDTO.fromModelPageToDTOPage(entityPageResults),
+				HttpStatus.OK);
+	}
+	
 }

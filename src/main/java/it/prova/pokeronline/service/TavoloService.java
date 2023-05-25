@@ -33,6 +33,8 @@ public interface TavoloService {
 	
 	public Tavolo alzati(Long idTavolo);
 	
+	public Tavolo lastGame();
 	
+	public Page<Tavolo> cercaTavoliWithPagination(Tavolo example, Integer pageNo, Integer pageSize, String sortBy);
 
 }

@@ -225,4 +225,60 @@ public class TavoloServiceImpl implements TavoloService {
 		return tavolo;
 	}
 
+	@Override
+	public Tavolo lastGame() {
+		
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Utente utenteInSessione = utenteService.findByUsername(username);
+		
+		List<Tavolo> tavoliPresenti = (List<Tavolo>) repository.findAll();
+		
+		for (Tavolo tavoloItem : tavoliPresenti) {
+			if(tavoloItem.getGiocatori().contains(utenteInSessione))
+				return tavoloItem;
+		}
+		
+		throw new UtenteNonSedutoException("Attenzione! Non sei seduto ad alcun tavolo.");
+	}
+	
+	
+
+	public Page<Tavolo> cercaTavoliWithPagination(Tavolo example, Integer pageNo, Integer pageSize, String sortBy) {
+		Specification<Tavolo> specificationCriteria = (root, query, cb) -> {
+
+			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			Utente utenteInSessione = utenteService.findByUsername(username);
+			
+			List<Predicate> predicates = new ArrayList<Predicate>();
+
+			if (StringUtils.isNotEmpty(example.getDenominazione()))
+				predicates.add(cb.like(cb.upper(root.get("denominazione")),
+						"%" + example.getDenominazione().toUpperCase() + "%"));
+
+			example.setCreditoMin(utenteInSessione.getCreditoAccumulato());
+				predicates.add(cb.lessThanOrEqualTo(root.get("creditoMin"), example.getCreditoMin()));
+
+			example.setEsperienzaMin(utenteInSessione.getEsperienzaAccumulata());;
+				predicates.add(cb.lessThanOrEqualTo(root.get("esperienzaMin"), example.getEsperienzaMin()));
+
+			if (example.getUtenteCreazione() != null
+					&& StringUtils.isNotEmpty(example.getUtenteCreazione().getUsername()))
+				predicates.add(cb.equal(root.join("utenteCreazione").get("username"),
+						example.getUtenteCreazione().getUsername()));
+
+			if (example.getDataCreazione() != null)
+				predicates.add(cb.greaterThanOrEqualTo(root.get("dataCreazione"), example.getDataCreazione()));
+
+			return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+		};
+
+		Pageable paging = null;
+		// se non passo parametri di paginazione non ne tengo conto
+		if (pageSize == null || pageSize < 10)
+			paging = Pageable.unpaged();
+		else
+			paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+
+		return repository.findAll(specificationCriteria, paging);
+	}
 }

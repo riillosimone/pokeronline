@@ -27,7 +27,7 @@ public class TavoloProtectedController {
 	private TavoloService tavoloService;
 
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseStatus(HttpStatus.CREATED) 
 	public TavoloDTOPerInsert createNew(@Valid @RequestBody TavoloDTOPerInsert tavoloInput) {
 		if (tavoloInput.getId() != null) {
 			throw new IdNotNullForInsertException("Non è ammesso fornire un id per la creazione");
